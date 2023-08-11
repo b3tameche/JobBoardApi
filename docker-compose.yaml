@@ -1,0 +1,25 @@
+version: '2.4'
+
+services:
+  db:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    ports:
+      - "1433:1433"
+    environment:
+      - MSSQL_SA_PASSWORD=Testpass123_
+      - ACCEPT_EULA=Y
+      - VIRTUAL_ENVIRONMENT=mssql.localhost
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "Testpass123_" -Q "SELECT 1"
+      interval: 10s
+      retries: 15
+  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
